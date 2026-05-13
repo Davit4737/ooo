@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TOEFL / IELTS Reading Test</title>
+
+  <style>
+    :root {
+      --bg: #f4f6f8;
+      --card: #ffffff;
+      --text: #17212b;
+      --muted: #667085;
+      --blue: #2563eb;
+      --blue-dark: #1d4ed8;
+      --border: #d0d5dd;
+      --green: #16a34a;
+      --red: #dc2626;
+      --yellow: #f59e0b;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .app {
+      max-width: 950px;
+      margin: 0 auto;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: #0f172a;
+      color: white;
+      padding: 12px 14px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+    }
+
+    .top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand {
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    .timer {
+      font-size: 15px;
+      font-weight: 700;
+      background: rgba(255,255,255,0.12);
+      padding: 7px 10px;
+      border-radius: 999px;
+    }
+
+    .progress {
+      margin-top: 10px;
+      height: 7px;
+      background: rgba(255,255,255,0.18);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: #60a5fa;
+      transition: width 0.25s;
+    }
+
+    main {
+      padding: 14px;
+      flex: 1;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 6px 20px rgba(16,24,40,0.06);
+      margin-bottom: 14px;
+    }
+
+    .screen-title {
+      font-size: 24px;
+      margin: 0 0 10px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      line-height: 1.5;
+      margin: 0 0 14px;
+    }
+
+    .btn {
+      width: 100%;
+      border: none;
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      background: var(--blue);
+      color: white;
+      transition: 0.15s;
+    }
+
+    .btn:hover {
+      background: var(--blue-dark);
+    }
+
+    .btn.secondary {
+      background: white;
+      color: var(--blue);
+      border: 1px solid var(--blue);
+    }
+
+    .btn.danger {
+      background: var(--red);
+    }
+
+    .btn-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .passage-title {
+      font-size: 20px;
+      margin: 0 0 12px;
+    }
+
+    .passage {
+      font-size: 16px;
+      line-height: 1.7;
+      max-height: 45vh;
+      overflow-y: auto;
+      padding-right: 6px;
+    }
+
+    .question-number {
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .question-text {
+      font-size: 19px;
+      font-weight: 700;
+      line-height: 1.35;
+      margin-bottom: 14px;
+    }
+
+    .options {
+      display: grid;
+      gap: 10px;
+    }
+
+    .option {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 13px;
+      background: white;
+      cursor: pointer;
+      line-height: 1.4;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .option input {
+      margin-top: 3px;
+      transform: scale(1.15);
+    }
+
+    .option.selected {
+      border-color: var(--blue);
+      background: #eff6ff;
+    }
+
+    .nav-grid {
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      gap: 6px;
+      margin-top: 14px;
+    }
+
+    .nav-item {
+      border: 1px solid var(--border);
+      background: white;
+      border-radius: 8px;
+      padding: 8px 0;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .nav-item.active {
+      background: var(--blue);
+      color: white;
+      border-color: var(--blue);
+    }
+
+    .nav-item.answered {
+      background: #dcfce7;
+      border-color: #86efac;
+    }
+
+    .nav-item.active.answered {
+      background: var(--blue);
+      color: white;
+    }
+
+    .result-score {
+      font-size: 54px;
+      font-weight: 900;
+      color: var(--blue);
+      text-align: center;
+      margin: 12px 0;
+    }
+
+    .result-box {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .stat {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .review-item {
+      border-top: 1px solid var(--border);
+      padding: 14px 0;
+    }
+
+    .correct {
+      color: var(--green);
+      font-weight: 700;
+    }
+
+    .wrong {
+      color: var(--red);
+      font-weight: 700;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (min-width: 760px) {
+      .test-layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+        align-items: start;
+      }
+
+      .btn {
+        width: auto;
+      }
+
+      .btn-row .btn {
+        width: 100%;
+      }
+
+      .passage {
+        max-height: 70vh;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .screen-title {
+        font-size: 21px;
+      }
+
+      .question-text {
+        font-size: 17px;
+      }
+
+      .passage {
+        font-size: 15px;
+        max-height: 38vh;
+      }
+
+      .nav-grid {
+        grid-template-columns: repeat(5, 1fr);
+      }
+
+      .btn-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <header>
+      <div class="top-row">
+        <div class="brand">TOEFL / IELTS Reading Simulator</div>
+        <div class="timer" id="timer">60:00</div>
+      </div>
+      <div class="progress">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+    </header>
+
+    <main>
+      <section id="startScreen" class="card">
+        <h1 class="screen-title">Reading Practice Test</h1>
+        <p class="subtitle">
+          This test is designed like a real TOEFL Reading section: passages, multiple-choice questions,
+          timer, navigation, unanswered question tracking, and final score from <b>0 to 30</b>.
+        </p>
+
+        <div class="result-box">
+          <div class="stat">
+            <span>Time limit</span>
+            <b>60 minutes</b>
+          </div>
+          <div class="stat">
+            <span>Total questions</span>
+            <b id="totalQStart">0</b>
+          </div>
+          <div class="stat">
+            <span>Final score</span>
+            <b>0–30</b>
+          </div>
+        </div>
+
+        <br />
+        <button class="btn" onclick="startTest()">Start Test</button>
+      </section>
+
+      <section id="testScreen" class="hidden">
+        <div class="test-layout">
+          <div class="card">
+            <h2 class="passage-title" id="passageTitle"></h2>
+            <div class="passage" id="passageText"></div>
+          </div>
+
+          <div class="card">
+            <div class="question-number" id="questionNumber"></div>
+            <div class="question-text" id="questionText"></div>
+            <div class="options" id="options"></div>
+
+            <div class="btn-row">
+              <button class="btn secondary" onclick="prevQuestion()">Previous</button>
+              <button class="btn" onclick="nextQuestion()">Next</button>
+            </div>
+
+            <button class="btn danger" style="margin-top:10px; width:100%;" onclick="finishTest()">
+              Finish Test
+            </button>
+
+            <div class="nav-grid" id="questionNav"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="resultScreen" class="card hidden">
+        <h1 class="screen-title">Your Result</h1>
+        <p class="subtitle">Your TOEFL-style Reading score:</p>
+
+        <div class="result-score" id="score30">0 / 30</div>
+
+        <div class="result-box">
+          <div class="stat">
+            <span>Correct answers</span>
+            <b id="correctCount"></b>
+          </div>
+          <div class="stat">
+            <span>Total questions</span>
+            <b id="totalCount"></b>
+          </div>
+          <div class="stat">
+            <span>Percentage</span>
+            <b id="percentage"></b>
+          </div>
+          <div class="stat">
+            <span>Estimated level</span>
+            <b id="levelText"></b>
+          </div>
+        </div>
+
+        <br />
+        <button class="btn" onclick="restartTest()">Restart Test</button>
+        <button class="btn secondary" style="margin-top:10px; width:100%;" onclick="toggleReview()">
+          Show / Hide Review
+        </button>
+
+        <div id="reviewBox" class="hidden"></div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const testData = [
+      {
+        title: "Passage 1: A Chemical Compound",
+        text: `
+          <p>Carbon tetrachloride is a colorless liquid that was once widely used in cleaning products and industrial processes. 
+          Because it dissolves oils and other substances effectively, it became popular in factories and homes.</p>
+          <p>However, later research showed that the chemical could be dangerous, especially when heated or inhaled. 
+          As safety concerns grew, governments began restricting its use. Today, it is no longer allowed in many household products, 
+          though similar chemicals may still be used under strict regulation.</p>
+        `,
+        questions: [
+          {
+            q: "What is the main idea of the passage?",
+            options: [
+              "Carbon tetrachloride was useful but later restricted because of safety concerns.",
+              "Carbon tetrachloride is the safest cleaning liquid.",
+              "Factories no longer use any chemical compounds.",
+              "All cleaning products are dangerous."
+            ],
+            answer: 0
+          },
+          {
+            q: "The word “widely” is closest in meaning to:",
+            options: ["rarely", "extensively", "secretly", "slowly"],
+            answer: 1
+          },
+          {
+            q: "Why did governments restrict carbon tetrachloride?",
+            options: [
+              "It was too expensive to produce.",
+              "It was ineffective in factories.",
+              "It could be harmful to people.",
+              "It had no industrial use."
+            ],
+            answer: 2
+          },
+          {
+            q: "The paragraph following the passage would most likely discuss:",
+            options: [
+              "other safety rules for chemical products",
+              "the history of ancient medicine",
+              "how to build a factory",
+              "the price of household cleaners"
+            ],
+            answer: 0
+          }
+        ]
+      },
+
+      {
+        title: "Passage 2: An American Artist",
+        text: `
+          <p>James Whistler was an American-born artist who spent much of his career in Europe. 
+          Although he lived abroad for many years, he is still included in surveys of American art because of his birthplace 
+          and his influence on later American painters.</p>
+          <p>Whistler worked in several forms of art, including painting, lithography, and etching. 
+          His best-known painting is often called <i>Whistler’s Mother</i>, although its official title is much longer. 
+          The painting is famous for its simple colors, quiet mood, and unusual composition.</p>
+        `,
+        questions: [
+          {
+            q: "What does the passage mainly describe?",
+            options: [
+              "One artist’s life and work",
+              "European wars",
+              "The invention of photography",
+              "Modern architecture"
+            ],
+            answer: 0
+          },
+          {
+            q: "Why is Whistler considered an American artist?",
+            options: [
+              "He never left the United States.",
+              "He was born in America.",
+              "He painted only American cities.",
+              "He served in the U.S. military."
+            ],
+            answer: 1
+          },
+          {
+            q: "The word “several” is closest in meaning to:",
+            options: ["many", "none", "ancient", "hidden"],
+            answer: 0
+          },
+          {
+            q: "Which statement is NOT true according to the passage?",
+            options: [
+              "Whistler worked in different art forms.",
+              "Whistler spent much of his career in Europe.",
+              "Whistler’s Mother is known for a quiet mood.",
+              "Whistler was mainly known as a scientist."
+            ],
+            answer: 3
+          }
+        ]
+      },
+
+      {
+        title: "Passage 3: Moving Stars",
+        text: `
+          <p>To the naked eye, stars appear fixed in the night sky. For this reason, many early observers believed that stars did not move. 
+          In reality, stars are always moving, but their great distance from Earth makes this motion extremely difficult to notice.</p>
+          <p>Some stars move fast enough for astronomers to measure their position over long periods of time. 
+          Even then, the movement seems small because space is so vast. Compared with planets, stars appear almost motionless from Earth.</p>
+        `,
+        questions: [
+          {
+            q: "What is the best title for the passage?",
+            options: [
+              "The Movement of Stars",
+              "The Color of the Moon",
+              "How Telescopes Are Built",
+              "Ancient Geography"
+            ],
+            answer: 0
+          },
+          {
+            q: "The expression “naked eye” means:",
+            options: [
+              "vision without instruments",
+              "a powerful telescope",
+              "a scientific camera",
+              "a method of measuring planets"
+            ],
+            answer: 0
+          },
+          {
+            q: "Why do stars seem fixed?",
+            options: [
+              "They are not real objects.",
+              "They are very close to Earth.",
+              "Their distance makes movement hard to see.",
+              "They move faster than planets."
+            ],
+            answer: 2
+          },
+          {
+            q: "This passage would most likely appear in which course?",
+            options: ["Astronomy", "Economics", "Literature", "Law"],
+            answer: 0
+          }
+        ]
+      },
+
+      {
+        title: "Passage 4: Divorce Law",
+        text: `
+          <p>Traditionally, many courts granted divorces only when one partner was found to be at fault. 
+          This often required a public process in which one spouse blamed the other. Such cases could become stressful and expensive.</p>
+          <p>Supporters of no-fault divorce argue that it reduces conflict and allows couples to end a marriage without proving blame. 
+          They believe that this approach can make legal settlements easier and can help people move forward more quickly.</p>
+        `,
+        questions: [
+          {
+            q: "What is the passage mainly about?",
+            options: [
+              "Why no-fault divorce became more common",
+              "How to plan a wedding",
+              "The history of criminal law",
+              "Why courts avoid all family cases"
+            ],
+            answer: 0
+          },
+          {
+            q: "The word “supporters” is closest in meaning to:",
+            options: ["advocates", "enemies", "judges", "witnesses"],
+            answer: 0
+          },
+          {
+            q: "According to the passage, proving fault can:",
+            options: [
+              "make the process more peaceful",
+              "increase stress and conflict",
+              "remove the need for courts",
+              "guarantee a faster settlement"
+            ],
+            answer: 1
+          },
+          {
+            q: "The tone of the passage is best described as:",
+            options: ["expository", "angry", "comic", "romantic"],
+            answer: 0
+          }
+        ]
+      },
+
+      {
+        title: "Passage 5: Revolutionary Writing",
+        text: `
+          <p>During the period before the American Revolution, literature became an important tool for spreading political ideas. 
+          Some writers used newspapers, pamphlets, and essays to persuade colonists that independence was necessary.</p>
+          <p>Benjamin Franklin and Thomas Paine were among the writers whose works influenced public opinion. 
+          Franklin often wrote in a practical and accessible style, while Paine used forceful language to present the conflict as a struggle for freedom.</p>
+        `,
+        questions: [
+          {
+            q: "What is the purpose of the passage?",
+            options: [
+              "To describe the influence of literature during revolutionary America",
+              "To explain how newspapers are printed",
+              "To compare modern novels",
+              "To describe European painting"
+            ],
+            answer: 0
+          },
+          {
+            q: "The word “persuade” is closest in meaning to:",
+            options: ["convince", "hide", "confuse", "attack"],
+            answer: 0
+          },
+          {
+            q: "According to the passage, Paine’s writing was:",
+            options: ["forceful", "silent", "scientific", "unrelated to politics"],
+            answer: 0
+          },
+          {
+            q: "The passage implies that literature can:",
+            options: [
+              "influence people’s political opinions",
+              "stop all wars immediately",
+              "replace government completely",
+              "only entertain readers"
+            ],
+            answer: 0
+          }
+        ]
+      }
+    ];
+
+    let allQuestions = [];
+    let currentIndex = 0;
+    let answers = [];
+    let timeLeft = 60 * 60;
+    let timerInterval = null;
+    let finished = false;
+
+    function buildQuestions() {
+      allQuestions = [];
+      testData.forEach((passage, pIndex) => {
+        passage.questions.forEach((question, qIndex) => {
+          allQuestions.push({
+            passageIndex: pIndex,
+            localQuestionIndex: qIndex,
+            ...question
+          });
+        });
+      });
+      answers = new Array(allQuestions.length).fill(null);
+      document.getElementById("totalQStart").textContent = allQuestions.length;
+    }
+
+    function startTest() {
+      document.getElementById("startScreen").classList.add("hidden");
+      document.getElementById("testScreen").classList.remove("hidden");
+
+      currentIndex = 0;
+      timeLeft = 60 * 60;
+      finished = false;
+
+      renderQuestion();
+      startTimer();
+    }
+
+    function startTimer() {
+      updateTimer();
+
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        updateTimer();
+
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          finishTest(true);
+        }
+      }, 1000);
+    }
+
+    function updateTimer() {
+      const minutes = Math.floor(timeLeft / 60);
+      const seconds = timeLeft % 60;
+      document.getElementById("timer").textContent =
+        `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+    }
+
+    function renderQuestion() {
+      const item = allQuestions[currentIndex];
+      const passage = testData[item.passageIndex];
+
+      document.getElementById("passageTitle").textContent = passage.title;
+      document.getElementById("passageText").innerHTML = passage.text;
+
+      document.getElementById("questionNumber").textContent =
+        `Question ${currentIndex + 1} of ${allQuestions.length}`;
+
+      document.getElementById("questionText").textContent = item.q;
+
+      const optionsBox = document.getElementById("options");
+      optionsBox.innerHTML = "";
+
+      item.options.forEach((option, index) => {
+        const label = document.createElement("label");
+        label.className = "option";
+        if (answers[currentIndex] === index) label.classList.add("selected");
+
+        label.innerHTML = `
+          <input type="radio" name="answer" ${answers[currentIndex] === index ? "checked" : ""}>
+          <span><b>${String.fromCharCode(65 + index)}.</b> ${option}</span>
+        `;
+
+        label.onclick = () => {
+          answers[currentIndex] = index;
+          renderQuestion();
+        };
+
+        optionsBox.appendChild(label);
+      });
+
+      renderNav();
+      updateProgress();
+    }
+
+    function renderNav() {
+      const nav = document.getElementById("questionNav");
+      nav.innerHTML = "";
+
+      allQuestions.forEach((_, index) => {
+        const btn = document.createElement("button");
+        btn.className = "nav-item";
+        btn.textContent = index + 1;
+
+        if (index === currentIndex) btn.classList.add("active");
+        if (answers[index] !== null) btn.classList.add("answered");
+
+        btn.onclick = () => {
+          currentIndex = index;
+          renderQuestion();
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        };
+
+        nav.appendChild(btn);
+      });
+    }
+
+    function updateProgress() {
+      const answered = answers.filter(a => a !== null).length;
+      const percent = (answered / allQuestions.length) * 100;
+      document.getElementById("progressFill").style.width = percent + "%";
+    }
+
+    function nextQuestion() {
+      if (currentIndex < allQuestions.length - 1) {
+        currentIndex++;
+        renderQuestion();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } else {
+        finishTest();
+      }
+    }
+
+    function prevQuestion() {
+      if (currentIndex > 0) {
+        currentIndex--;
+        renderQuestion();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    }
+
+    function finishTest(auto = false) {
+      if (finished) return;
+
+      const unanswered = answers.filter(a => a === null).length;
+
+      if (!auto && unanswered > 0) {
+        const ok = confirm(`You still have ${unanswered} unanswered questions. Finish anyway?`);
+        if (!ok) return;
+      }
+
+      finished = true;
+      clearInterval(timerInterval);
+
+      let correct = 0;
+
+      allQuestions.forEach((q, index) => {
+        if (answers[index] === q.answer) correct++;
+      });
+
+      const rawPercent = Math.round((correct / allQuestions.length) * 100);
+      const score30 = Math.round((correct / allQuestions.length) * 30);
+
+      document.getElementById("testScreen").classList.add("hidden");
+      document.getElementById("resultScreen").classList.remove("hidden");
+
+      document.getElementById("score30").textContent = `${score30} / 30`;
+      document.getElementById("correctCount").textContent = correct;
+      document.getElementById("totalCount").textContent = allQuestions.length;
+      document.getElementById("percentage").textContent = rawPercent + "%";
+      document.getElementById("levelText").textContent = getLevel(score30);
+
+      buildReview();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function getLevel(score) {
+      if (score >= 27) return "Excellent / C1+";
+      if (score >= 23) return "Strong / B2-C1";
+      if (score >= 18) return "Good / B2";
+      if (score >= 13) return "Intermediate / B1";
+      if (score >= 8) return "Weak / A2-B1";
+      return "Needs serious practice";
+    }
+
+    function buildReview() {
+      const box = document.getElementById("reviewBox");
+      box.innerHTML = "<h2>Answer Review</h2>";
+
+      allQuestions.forEach((q, index) => {
+        const userAnswer = answers[index];
+        const isCorrect = userAnswer === q.answer;
+
+        const div = document.createElement("div");
+        div.className = "review-item";
+
+        div.innerHTML = `
+          <p><b>Question ${index + 1}:</b> ${q.q}</p>
+          <p>Your answer: 
+            <span class="${isCorrect ? "correct" : "wrong"}">
+              ${userAnswer === null ? "No answer" : String.fromCharCode(65 + userAnswer) + ". " + q.options[userAnswer]}
+            </span>
+          </p>
+          <p>Correct answer: 
+            <span class="correct">
+              ${String.fromCharCode(65 + q.answer)}. ${q.options[q.answer]}
+            </span>
+          </p>
+        `;
+
+        box.appendChild(div);
+      });
+    }
+
+    function toggleReview() {
+      document.getElementById("reviewBox").classList.toggle("hidden");
+    }
+
+    function restartTest() {
+      clearInterval(timerInterval);
+      currentIndex = 0;
+      answers = new Array(allQuestions.length).fill(null);
+      timeLeft = 60 * 60;
+      finished = false;
+
+      document.getElementById("resultScreen").classList.add("hidden");
+      document.getElementById("startScreen").classList.remove("hidden");
+      document.getElementById("reviewBox").classList.add("hidden");
+      document.getElementById("progressFill").style.width = "0%";
+      updateTimer();
+    }
+
+    buildQuestions();
+    updateTimer();
+  </script>
+</body>
+</html>
